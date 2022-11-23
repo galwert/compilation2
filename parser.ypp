@@ -1,8 +1,11 @@
 
 %{
-
+#include <iostream>
+using namespace std;
 int yyerror(char *s);
 int yylex(void);
+#include "output.hpp"
+
 %}
 %token	ID
 %token	NUM
@@ -46,93 +49,89 @@ int yylex(void);
 %right	RBRACE
 %%
 
-Program:	Funcs
+Program:	Funcs {output::printProductionRule(1);}
 		;
 
-Funcs:		|/*epsilon*/
-		FuncDecl Funcs
+Funcs:		/*epsilon*/ {output::printProductionRule(2);}
+		| FuncDecl Funcs {output::printProductionRule(3);}
 		;
 
-FuncDecl:	RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE
+FuncDecl:	RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE  {output::printProductionRule(4);}
 		;
 
-RetType:		Type
-		| VOID
+RetType:		Type {output::printProductionRule(5);}
+		| VOID  {output::printProductionRule(6);}
 		;
 
-Formals:		/**/
-		| FormalsList
+Formals:		/**/{output::printProductionRule(7);}
+		| FormalsList {output::printProductionRule(8);}
 		;
 
-FormalsList:	FormalDecl
-		| FormalDecl COMMA FormalsList
+FormalsList:	FormalDecl {output::printProductionRule(9);}
+		| FormalDecl COMMA FormalsList {output::printProductionRule(10);}
 		;
 
-FormalDecl: 	Type ID
+FormalDecl: 	Type ID {output::printProductionRule(11);}
 		;
-Statements:	Statement
-		| Statements Statements
-		;
-
-Statement:	LBRACE Statements RBRACE
-		| Type ID SC
-		| Type ID ASSIGN Exp SC
-		| ID ASSIGN Exp SC
-		| Call SC
-		| RETURN SC
-		| RETURN Exp SC
-		| IF LPAREN Exp RPAREN Statement
-		| IF LPAREN Exp RPAREN Statement ELSE Statement
-		| WHILE LPAREN Exp RPAREN Statement
-		| BREAK SC
-		| CONTINUE SC
+Statements:	Statement  {output::printProductionRule(12);}
+		| Statements Statement  {output::printProductionRule(13);}
 		;
 
-Call:		ID LPAREN ExpList RPAREN
-		| ID LPAREN RPAREN
+Statement:	LBRACE Statements RBRACE  {output::printProductionRule(14);}
+		| Type ID SC  {output::printProductionRule(15);}
+		| Type ID ASSIGN Exp SC  {output::printProductionRule(16);}
+		| ID ASSIGN Exp SC  {output::printProductionRule(17);}
+		| Call SC  {output::printProductionRule(18);}
+		| RETURN SC {output::printProductionRule(19);}
+		| RETURN Exp SC {output::printProductionRule(20);}
+		| IF LPAREN Exp RPAREN Statement {output::printProductionRule(21);}
+		| IF LPAREN Exp RPAREN Statement ELSE Statement {output::printProductionRule(22);}
+		| WHILE LPAREN Exp RPAREN Statement {output::printProductionRule(23);}
+		| BREAK SC  {output::printProductionRule(24);}
+		| CONTINUE SC  {output::printProductionRule(25);}
 		;
 
-ExpList:		Exp
-		| Exp COMMA ExpList
+Call:		ID LPAREN ExpList RPAREN  {output::printProductionRule(26);}
+		| ID LPAREN RPAREN  {output::printProductionRule(27);}
 		;
 
-Type:		INT
-		| BYTE
-		| BOOL
+ExpList:		Exp  {output::printProductionRule(28);}
+		| Exp COMMA ExpList  {output::printProductionRule(29);}
 		;
 
-Exp:		LPAREN Exp RPAREN
-		| Exp PLUS Exp
-		| Exp MULTI Exp
-		| ID
-		| Call
-		| NUM
-		| NUM B
-		| STRING
-		| TRUE
-		| FALSE
-		| NOT Exp
-		| Exp AND Exp
-		| Exp OR Exp
-		| Exp RELOP Exp
-		| LPAREN Type RPAREN Exp
+Type:		INT  {output::printProductionRule(30);}
+		| BYTE  {output::printProductionRule(31);}
+		| BOOL  {output::printProductionRule(32);}
+		;
+
+Exp:		LPAREN Exp RPAREN  {output::printProductionRule(33);}
+		| Exp PLUS Exp {output::printProductionRule(34);}
+		| Exp MULTI Exp  {output::printProductionRule(34);}
+		| ID  {output::printProductionRule(35);}
+		| Call  {output::printProductionRule(36);}
+		| NUM {output::printProductionRule(37);}
+		| NUM B  {output::printProductionRule(38);}
+		| STRING  {output::printProductionRule(39);}
+		| TRUE  {output::printProductionRule(40);}
+		| FALSE  {output::printProductionRule(41);}
+		| NOT Exp  {output::printProductionRule(42);}
+		| Exp AND Exp  {output::printProductionRule(43);}
+		| Exp OR Exp  {output::printProductionRule(44);}
+		| Exp RELOP Exp  {output::printProductionRule(45);}
+		| LPAREN Type RPAREN Exp   {output::printProductionRule(46);}
 		;
 
 
 %%
 
-int yyerror(string s)
+int yyerror(char* s)
 {
   extern int yylineno;	// defined and maintained in lex.c
   extern char *yytext;	// defined and maintained in lex.c
   
-  cerr << "ERROR: " << s << " at symbol \"" << yytext;
-  cerr << "\" on line " << yylineno << endl;
   exit(1);
 }
 
-int yyerror(char *s)
-{
-  return yyerror(string(s));
+int main(){
+	return yyparse();
 }
-

@@ -1,0 +1,2 @@
+2: Funcs -> epsilon
+1: Program -> Funcs
