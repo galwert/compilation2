@@ -1,0 +1,138 @@
+
+%{
+
+int yyerror(char *s);
+int yylex(void);
+%}
+%token	ID
+%token	NUM
+%token	STRING
+
+%token	VOID
+%token	INT
+%token	BYTE
+%token	B
+%token	BOOL
+
+
+
+%token	TRUE
+%token	FALSE
+%token	RETURN
+
+
+%token	WHILE
+%token	BREAK
+%token	CONTINUE
+%token	SC
+%token	COMMA
+
+
+
+%nonassoc	ASSIGN
+
+
+%left	OR
+%left	AND
+%left	RELOP
+%left	PLUS
+%left	MULTI
+%right	NOT
+%left	LPAREN
+%left	RPAREN
+%right	ELSE
+%left	IF
+%right	LBRACE
+%right	RBRACE
+%%
+
+Program:	Funcs
+		;
+
+Funcs:		|/*epsilon*/
+		FuncDecl Funcs
+		;
+
+FuncDecl:	RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE
+		;
+
+RetType:		Type
+		| VOID
+		;
+
+Formals:		/**/
+		| FormalsList
+		;
+
+FormalsList:	FormalDecl
+		| FormalDecl COMMA FormalsList
+		;
+
+FormalDecl: 	Type ID
+		;
+Statements:	Statement
+		| Statements Statements
+		;
+
+Statement:	LBRACE Statements RBRACE
+		| Type ID SC
+		| Type ID ASSIGN Exp SC
+		| ID ASSIGN Exp SC
+		| Call SC
+		| RETURN SC
+		| RETURN Exp SC
+		| IF LPAREN Exp RPAREN Statement
+		| IF LPAREN Exp RPAREN Statement ELSE Statement
+		| WHILE LPAREN Exp RPAREN Statement
+		| BREAK SC
+		| CONTINUE SC
+		;
+
+Call:		ID LPAREN ExpList RPAREN
+		| ID LPAREN RPAREN
+		;
+
+ExpList:		Exp
+		| Exp COMMA ExpList
+		;
+
+Type:		INT
+		| BYTE
+		| BOOL
+		;
+
+Exp:		LPAREN Exp RPAREN
+		| Exp PLUS Exp
+		| Exp MULTI Exp
+		| ID
+		| Call
+		| NUM
+		| NUM B
+		| STRING
+		| TRUE
+		| FALSE
+		| NOT Exp
+		| Exp AND Exp
+		| Exp OR Exp
+		| Exp RELOP Exp
+		| LPAREN Type RPAREN Exp
+		;
+
+
+%%
+
+int yyerror(string s)
+{
+  extern int yylineno;	// defined and maintained in lex.c
+  extern char *yytext;	// defined and maintained in lex.c
+  
+  cerr << "ERROR: " << s << " at symbol \"" << yytext;
+  cerr << "\" on line " << yylineno << endl;
+  exit(1);
+}
+
+int yyerror(char *s)
+{
+  return yyerror(string(s));
+}
+
