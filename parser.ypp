@@ -5,6 +5,7 @@ using namespace std;
 int yyerror(char *s);
 int yylex(void);
 #include "output.hpp"
+#include "parser.tab.hpp"
 
 %}
 %token	ID
@@ -18,7 +19,7 @@ int yylex(void);
 %token	BOOL
 
 
-
+%token	ASSIGN
 %token	TRUE
 %token	FALSE
 %token	RETURN
@@ -32,7 +33,7 @@ int yylex(void);
 
 
 
-%nonassoc	ASSIGN
+
 
 
 %left	OR
@@ -40,13 +41,13 @@ int yylex(void);
 %left	RELOP
 %left	PLUS
 %left	MULTI
-%right	NOT
-%left	LPAREN
-%left	RPAREN
-%right	ELSE
-%left	IF
-%right	LBRACE
-%right	RBRACE
+%right NOT
+%right LPAREN
+%right RPAREN
+%left	ELSE
+%right	IF
+%token LBRACE
+%token RBRACE
 %%
 
 Program:	Funcs {output::printProductionRule(1);}
@@ -128,7 +129,8 @@ int yyerror(char* s)
 {
   extern int yylineno;	// defined and maintained in lex.c
   extern char *yytext;	// defined and maintained in lex.c
-  
+  printf("line %d: %s\n",yylineno,s);
+
   exit(1);
 }
 

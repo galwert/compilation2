@@ -1,11 +1,15 @@
 
 %{
 #include <stdio.h>
-#include "tokens.hpp"
+#include "parser.tab.hpp"
+#include "output.hpp"
 %}
 
 %option yylineno
 %option noyywrap
+
+id [A-Za-z][A-Za-z0-9]*
+number (0|([1-9][0-9]*))
 %%
 
 
@@ -32,17 +36,17 @@ continue {return CONTINUE;}
 \{ {return LBRACE;}
 \} {return RBRACE;}
 = {return ASSIGN;}
-[<>]=? {return RELOP;}
-[!=]= {return RELOP;}
-\*\/ {return MULTI;}
-\-\+ {return PLUS;}
-[a-zA-Z][a-zA-Z0-9]* {return ID;}
-0 | [1-9][0-9]* {return NUM;}
+[<>][=]? {return RELOP;}
+[!=][=] {return RELOP;}
+[\*\/] {return MULTI;}
+[\-\+] {return PLUS;}
+{id} {return ID;}
+{number} {return NUM;}
 \"([^\n\r\"\\]|\\[rnt\"\\])+\" {return STRING;}
 
 \/\/[^\r\n]*[\r|\n|\r\n]? {;}
-[\r\n ] {;}
-. {;}
+[\t \n\r] {;}
+. {output::errorLex(yylineno); exit(1);}
 
 %%
 
